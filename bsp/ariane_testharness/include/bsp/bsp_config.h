@@ -1,0 +1,16 @@
+#ifndef __BSP_CONFIG_H__
+#define __BSP_CONFIG_H__
+
+#define BSP_CONFIG_HARTID_BITS 8
+#define BSP_CONFIG_NCPUS       1
+
+#ifndef BSP_CONFIG_HARTID_BOOT
+#define BSP_CONFIG_HARTID_BOOT 0
+#endif
+
+#define BSP_CONFIG_FPU
+#define BSP_CONFIG_NOXS
+
+#define BSP_CONFIG_CLINT_NTARGETS BSP_CONFIG_NCPUS
+
+#endif  /* __BSP_CONFIG_H__ */

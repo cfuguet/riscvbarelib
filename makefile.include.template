@@ -1,0 +1,107 @@
+##
+#  Copyright 2023,2024 CEA*
+#  Commissariat a l'Energie Atomique et aux Energies Alternatives
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+##
+##
+#  @file   makefile.include.template
+#  @author Cesar Fuguet
+##
+BSP      = <<__BSP__>>
+THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+-include $(BSP)/makefile.bsp.include
+
+BIN2MEM       = $(RVB_HOME)/scripts/bin2mem.py
+MKDIR         = mkdir -p
+RM            = rm -f
+RMDIR         = rmdir
+
+PRINTF_FLOAT  = 1
+LINKER_SCRIPT = $(BSP)/linkcmds
+MEM_WORD_SIZE = 64
+
+CFLAGS += -ffreestanding \
+          -ffunction-sections \
+          -fdata-sections \
+          $(BSP_CFLAGS)
+
+CXXFLAGS = $(CFLAGS) -std=c++11
+
+LDFLAGS = -nostdlib \
+          -static \
+          -T $(LINKER_SCRIPT) \
+          -Wl,--gc-sections \
+          -Wl,--print-memory-usage \
+          -Wl,--relax \
+          -L$(THISDIR) \
+          $(EXTRA_LDFLAGS)
+
+ifeq ($(PRINTF_FLOAT),1)
+  LDFLAGS += -u _printf_float
+endif
+
+INCLUDES = -I$(RVB_HOME)/include \
+           -I$(BSP)/include \
+           $(EXTRA_INCLUDES)
+
+LIBS = $(EXTRA_LIBS) -Wl,--start-group -lc -lgcc -lrvb -Wl,--end-group
+
+O = build
+TARGET ?= $(error missing TARGET)
+target  = $O/$(TARGET).x
+
+#  add build prefix to object files
+OBJS := $(addprefix $O/,$(OBJS))
+
+.PHONY: all dump mem bin
+all: $(target) $(target).dump
+dump: $(target).dump
+mem: $(target).mem
+bin: $(target).bin
+
+$(target): $(OBJS)
+	$(MKDIR) $(dir $@)
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+%.dump: %
+	$(MKDIR) $(dir $@)
+	$(OD) -D $< > $@
+
+%.bin: %
+	$(MKDIR) $(dir $@)
+	$(OC) -S -O binary $< $@
+
+%.mem: %.bin
+	$(MKDIR) $(dir $@)
+	$(BIN2MEM) --in $< --out $@ --outw $(MEM_WORD_SIZE)
+
+$O/%.o: %.cpp
+	$(MKDIR) $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+
+$O/%.o: %.c
+	$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+
+$O/%.o: %.S
+	$(MKDIR) $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+
+
+.PHONY: clean
+clean:
+	$(RM) $(OBJS)
+	$(RM) $(target) $(target).dump $(target).bin $(target).mem
+	$(RMDIR) $(O)

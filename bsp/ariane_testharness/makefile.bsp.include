@@ -1,0 +1,90 @@
+##
+#  Copyright 2023,2024 CEA*
+#  Commissariat a l'Energie Atomique et aux Energies Alternatives
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+##
+##
+#  @file   ariane_testharness/makefile.bsp.include
+#  @author Cesar Fuguet
+##
+XLEN    = 64
+BSP_FPU = 1
+
+RISCV_PREFIX = riscv$(XLEN)-unknown-elf-
+
+CC  = $(RISCV_PREFIX)gcc
+CXX = $(RISCV_PREFIX)g++
+LD  = $(RISCV_PREFIX)ld
+AS  = $(RISCV_PREFIX)as
+OD  = $(RISCV_PREFIX)objdump
+OC  = $(RISCV_PREFIX)objcopy
+AR  = $(RISCV_PREFIX)ar
+
+ifeq ($(XLEN),64)
+  ifeq ($(BSP_FPU),1)
+    ARCH = rv64imafdc
+    ABI  = lp64d
+  else
+    ARCH = rv64imac
+    ABI  = lp64
+  endif
+else
+  ifeq ($(BSP_FPU),1)
+    ARCH = rv32imafc
+    ABI  = ilp32f
+  else
+    ARCH = rv32imac
+    ABI  = ilp32
+  endif
+endif
+
+MODEL      = medany
+BSP_CFLAGS = -march=${ARCH} -mabi=${ABI} -mcmodel=${MODEL} -mrelax
+
+#  UART parameters
+#  {{{
+ifdef UART_REGSIZE
+  BSP_CFLAGS += -DUART_REGSIZE=$(UART_REGSIZE)
+else
+  BSP_CFLAGS += -DUART_REGSIZE=2
+endif
+ifdef UART_IO_WIDTH
+  BSP_CFLAGS += -DUART_IO_WIDTH=$(UART_IO_WIDTH)
+endif
+ifdef UART_REFCLK
+  BSP_CFLAGS += -DUART_REFCLK=$(UART_REFCLK)
+endif
+ifdef UART_BAUDRATE
+  BSP_CFLAGS += -DUART_BAUDRATE=$(UART_BAUDRATE)
+endif
+ifdef UART_16550
+  BSP_CFLAGS += -DTTY_UART16550=1
+endif
+ifdef NSTDOUT
+  BSP_CFLAGS += -DNSTDOUT
+endif
+#  }}}
+
+#  Cache parameters
+#  {{{
+ifndef CMO_ENABLE
+  BSP_CFLAGS += -DBSP_CMO_DISABLE=1
+endif
+#  }}}
+
+BSP_INCDIRS = $(BSP)/include \
+              $(RVB_HOME)/drivers/clint/include \
+              $(RVB_HOME)/drivers/uart16550/include
+
+BSP_STACK_SIZE = 0x4000

@@ -1,0 +1,11 @@
+#  ignore build directories
+apps/**/build
+*.o
+*.x
+*.x.*
+*.a
+lib/mpfr/archives
+lib/mpfr/src
+lib/mpfr/build-*
+lib/mpfr/riscv-*
+lib/mpfr/x86_64-*
