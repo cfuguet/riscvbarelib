@@ -1,8 +1,5 @@
 # RISC-V software Baremetal environment (riscvbarelib)
 
-Author: Cesar Fuguet
-
-
 ## Description
 
 This repository contains a baremetal runtime for systems integrating RISC-V cores.
