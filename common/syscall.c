@@ -28,6 +28,8 @@
 #include <sys/time.h>
 #include <sys/reent.h>
 
+void* __dso_handle = (void*)&__dso_handle;
+
 void (*_putchar)(char c)         = NULL;
 int  (*_getchar)()               = NULL;
 void (*_tohost_exit)(int status) = NULL;
