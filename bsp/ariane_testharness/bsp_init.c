@@ -79,8 +79,8 @@ void bsp_init()
     printf("Executing the bare cea riscv environment (compiled: %s | %s)\n",
             __DATE__, __TIME__);
 
-    write_csr(CSR_MHPMEVENT3, 1); // select Icache Miss Event
-    write_csr(CSR_MHPMEVENT4, 2); // select Dcache Miss Event
+    write_csr(mhpmevent3, 1); // select Icache Miss Event
+    write_csr(mhpmevent4, 2); // select Dcache Miss Event
 
     bsp_mp_init();
     bsp_irq_init();

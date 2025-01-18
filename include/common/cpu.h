@@ -28,20 +28,20 @@
 extern "C" {
 #endif
 
-#define write_csr(csr, val) ({                             \
-        asm volatile ("csrw %[rd], %[rs]\n"                \
+#define write_csr(csr, val) ({                        \
+        asm volatile ("csrw " #csr ", %[rs]\n"        \
                 : /* no output */                     \
-                : [rd]"i"(csr), [rs]"r"(val)          \
+                : [rs]"r"(val)                        \
                 : "memory");                          \
         })
 
-#define read_csr(csr) ({                                   \
-        uint64_t ret;                                      \
-        asm volatile ("csrr %[rd], %[rs]\n"                \
+#define read_csr(csr) ({                              \
+        uint64_t ret;                                 \
+        asm volatile ("csrr %[rd]," #csr "    \n"     \
                 : [rd]"=r"(ret)                       \
-                : [rs]"i"(csr)                        \
+                : /* input by csr name */             \
                 : "memory");                          \
-        ret;                                               \
+        ret;                                          \
         })
 
 #define set_csr(csr, mask) ({                              \
