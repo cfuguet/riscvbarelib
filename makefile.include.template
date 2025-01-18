@@ -104,4 +104,4 @@ $O/%.o: %.S
 clean:
 	$(RM) $(OBJS)
 	$(RM) $(target) $(target).dump $(target).bin $(target).mem
-	$(RMDIR) $(O)
+	$(RMDIR) $(O) > /dev/null 2>&1 || true
