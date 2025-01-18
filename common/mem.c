@@ -73,3 +73,39 @@ void *memset(void *s, int c, size_t n)
 
     return (void*)_s;
 }
+
+void *memcpy(void *dest, const void *src, size_t n)
+{
+    size_t _n = n;
+    uintptr_t *_dest = (uintptr_t*)dest;
+    uintptr_t *_src = (uintptr_t*)src;
+
+    uintptr_t s0, s1, s2, s3;
+    if (_n >= (4*sizeof(uintptr_t))) {
+        s0 = _src[0];
+        s1 = _src[1];
+        s2 = _src[2];
+        s3 = _src[3];
+        while (_n >= (4*sizeof(uintptr_t))) {
+            _src += 4;
+            _n -= 4*sizeof(uintptr_t);
+            _dest[0] = s0;
+            s0 = _src[0];
+            _dest[1] = s1;
+            s1 = _src[1];
+            _dest[2] = s2;
+            s2 = _src[2];
+            _dest[3] = s3;
+            s3 = _src[3];
+            _dest += 4;
+        }
+    }
+
+    while (_n--) {
+        *_dest = *_src;
+        _dest++;
+        _src++;
+    }
+
+    return dest;
+}
