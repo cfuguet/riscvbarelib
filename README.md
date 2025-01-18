@@ -7,7 +7,7 @@ This riscvbarelib supports mono- or multi-core RISC-V systems.
 
 In order to enable the support on different "platforms", there is a BSP (Board Support Package) layer that provides a hardware abstraction layer (HAL) to the operating system.
 
-The common/ and include/ directores contains the procedures and header files of the OS kernel, respectively.
+The common/ and include/ directores contains the procedures and header files of the runtime, respectively.
 
 
 ## Features
@@ -16,7 +16,8 @@ The common/ and include/ directores contains the procedures and header files of 
 - Support of interrupts.
 - Provide configurable callbacks for handling interrupts and exceptions.
 - Kernel and applications are run on the same privilege level. By default the privilege level is "machine". However, user applications may change it if needed.
-- No support is provided for virtual memory. However, user applications may add the support if needed.
+- No support is currently provided for virtual memory.
+- Uses the newlib C library
 
 
 ## Layers
@@ -34,18 +35,20 @@ The common/ and include/ directores contains the procedures and header files of 
 
 ### Compilation
 
-In order to compile the user applications, consider copying one of the existing Makefile in example user applications, and then modify it as needed.
+To compile the library, use the following command:
 
-User makefiles for applications include some global makefiles that are provided with this repository (riscvbarelib). To find them, user makefiles may use some environment variables. To set the environment, users are invited to "source" the setup.csh script at the root of this repository.
+```sh
+    make BSP=<path to the target BSP> \
+         O=<path to the output installation path of the BSP>
+```
 
-Once the environment is set, makefiles require the user to pass the target BSP through the makefile. The procedure is as follows:
+Some example BSPs are provided in the bsp/ subdirectory.
 
-    cd <riscvbarelib_directory>
-    cd <user_app_directory>
-    make BSP=<target_BSP>
+The output path (O) shall contain after the installation the following files:
 
-As a result of the compilation, you will find a build/ directory. This directory contains at least:
-
+- Static library file (librvb.a)
+- Linker script (linkcmds.include) for the target BSP
+- Makefile (makefile.include) for user applications (APP)
 - Object files (\*.o)
-- ELF Executable file (\*.x)
-- Executable objdump file (\*.x.dump)
+
+The makefile.include shall be included from the Makefile of user's applications to compile the applications with the riscvbarelib runtime and the target BSP.
