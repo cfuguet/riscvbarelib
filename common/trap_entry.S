@@ -128,6 +128,6 @@ addi    sp,    sp,    CONTEXT_FRAME_SIZE ;
     trap_entry:
     CPU_CONTEXT_SAVE
     move  a0,sp // trap frame as sole arg of trap_handler func
-    call trap_handler /* (mcause, mstatus, mepc) */
+    call trap_handler
     CPU_CONTEXT_RESTORE
     mret
