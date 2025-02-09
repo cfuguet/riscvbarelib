@@ -24,10 +24,12 @@
 
 clint_drv_t* bsp_get_clint_driver(int hartid)
 {
-    return NULL;
+    static clint_drv_t clint;
+    return &clint;
 }
 
 void bsp_irq_init()
 {
-    /* do nothing */
+    clint_drv_t *clint = bsp_get_clint_driver(0);
+    clint_init(clint, 0x02000000, 1);
 }
