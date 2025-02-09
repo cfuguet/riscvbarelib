@@ -36,12 +36,12 @@ typedef struct
     uintptr_t tval;
 } trapframe_t;
 
-typedef void (*irq_handler_t)(
+typedef uintptr_t (*irq_handler_t)(
         uintptr_t mcause,
         uintptr_t mstatus,
         uintptr_t mepc);
 
-typedef void (*exc_handler_t)(
+typedef uintptr_t (*exc_handler_t)(
         uintptr_t mcause,
         uintptr_t mstatus,
         uintptr_t mepc,
@@ -52,7 +52,7 @@ void set_irq_tim_handler(int core, irq_handler_t handler);
 void set_irq_ext_handler(int core, irq_handler_t handler);
 void set_exc_ld_flt_handler(int core, exc_handler_t handler);
 void set_exc_st_flt_handler(int core, exc_handler_t handler);
-void set_exc_flt_handler(int core, exc_handler_t handler);
+void set_exc_instr_flt_handler(int core, exc_handler_t handler);
 void trap_handler(trapframe_t *tf);
 
 #ifdef __cplusplus

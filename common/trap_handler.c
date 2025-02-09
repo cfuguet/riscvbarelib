@@ -30,7 +30,7 @@ static irq_handler_t __per_core_irq_tim_handler[BSP_CONFIG_NCPUS];
 static irq_handler_t __per_core_irq_ext_handler[BSP_CONFIG_NCPUS];
 static exc_handler_t __per_core_exc_ld_flt_handler[BSP_CONFIG_NCPUS];
 static exc_handler_t __per_core_exc_st_flt_handler[BSP_CONFIG_NCPUS];
-static exc_handler_t __per_core_exc_flt_handler[BSP_CONFIG_NCPUS];
+static exc_handler_t __per_core_exc_instr_flt_handler[BSP_CONFIG_NCPUS];
 
 void set_irq_ipi_handler(int core, irq_handler_t handler)
 {
@@ -62,21 +62,20 @@ void set_exc_st_flt_handler(int core, exc_handler_t handler)
     cpu_dfence();
 }
 
-void set_exc_flt_handler(int core, exc_handler_t handler)
+void set_exc_instr_flt_handler(int core, exc_handler_t handler)
 {
-    __per_core_exc_flt_handler[core] = handler;
+    __per_core_exc_instr_flt_handler[core] = handler;
     cpu_dfence();
 }
 
-static void __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
+static uintptr_t __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
 {
     irq_handler_t handler;
     switch (mcause) {
         case MCAUSE_M_SOFTWARE_INTERRUPT:
             handler = __per_core_irq_ipi_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc);
-                break;
+                return handler(mcause, mstatus, mepc);
             }
             puts("PANIC ! SPURIOUS SOFTWARE INTERRUPT!\n");
             exit(EXIT_FAILURE);
@@ -84,8 +83,7 @@ static void __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
         case MCAUSE_M_TIMER_INTERRUPT:
             handler = __per_core_irq_tim_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc);
-                break;
+                return handler(mcause, mstatus, mepc);
             }
             puts("PANIC ! SPURIOUS TIMER INTERRUPT!\n");
             exit(EXIT_FAILURE);
@@ -93,8 +91,7 @@ static void __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
         case MCAUSE_M_EXTERNAL_INTERRUPT:
             handler = __per_core_irq_ext_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc);
-                break;
+                return handler(mcause, mstatus, mepc);
             }
             puts("PANIC ! SPURIOUS EXTERNAL INTERRUPT!\n");
             exit(EXIT_FAILURE);
@@ -105,46 +102,38 @@ static void __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
     }
 }
 
-static void __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc, uintptr_t mtval)
+static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc, uintptr_t mtval)
 {
     exc_handler_t handler;
 
     switch (mcause) {
         case MCAUSE_INSTR_ADDR_MISALIGNED:
         case MCAUSE_INSTR_ACCESS_FAULT:
-            handler = __per_core_exc_flt_handler[cpu_id()];
+        case MCAUSE_INSTR_PAGE_FAULT:
+        case MCAUSE_INSTR_ILLEGAL:
+            handler = __per_core_exc_instr_flt_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc, mtval);
-                return;
+                return handler(mcause, mstatus, mepc, mtval);
             }
             puts("PANIC ! INSTRUCTION ACCESS FAULT!\n");
             break;
 
-        case MCAUSE_INSTR_ILLEGAL:
-            handler = __per_core_exc_flt_handler[cpu_id()];
-            if (handler) {
-                handler(mcause, mstatus, mepc, mtval);
-                return;
-            }
-            puts("PANIC ! ILLEGAL INSTRUCTION!\n");
-            break;
-
         case MCAUSE_LOAD_ACCESS_FAULT:
         case MCAUSE_LOAD_ADDR_MISALIGNED:
+        case MCAUSE_LOAD_PAGE_FAULT:
             handler = __per_core_exc_ld_flt_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc, mtval);
-                return;
+                return handler(mcause, mstatus, mepc, mtval);
             }
             puts("PANIC ! SPURIOUS LOAD ACCESS FAULT!\n");
             break;
 
         case MCAUSE_STORE_ACCESS_FAULT:
         case MCAUSE_STORE_ADDR_MISALIGNED:
+        case MCAUSE_STORE_PAGE_FAULT:
             handler = __per_core_exc_st_flt_handler[cpu_id()];
             if (handler) {
-                handler(mcause, mstatus, mepc, mtval);
-                return;
+                return handler(mcause, mstatus, mepc, mtval);
             }
             puts("PANIC ! SPURIOUS STORE ACCESS FAULT!\n");
             break;
@@ -165,7 +154,6 @@ static void __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc, u
             "\nmtval = 0x" __csr_fmt,
             mcause, mstatus, mepc, mtval);
 
-
     exit(EXIT_FAILURE);
 }
 
@@ -177,12 +165,11 @@ void trap_handler(trapframe_t *tf)
     mepc = tf->epc;
     mtval = tf->tval;
     if (mcause & MCAUSE_INTERRUPT) {
-        __irq_handler(mcause, mstatus, mepc);
+        tf->epc = __irq_handler(mcause, mstatus, mepc);
         return;
     }
 
-    __exc_handler(mcause, mstatus, mepc, mtval);
-    tf->epc += 4;
+    tf->epc = __exc_handler(mcause, mstatus, mepc, mtval);
     return;
 }
 
