@@ -18,8 +18,14 @@
 #  @file   makefile.include.template
 #  @author Cesar Fuguet
 ##
-BSP      = <<__BSP__>>
 THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+XLEN = <<__XLEN__>>
+RISCV_PREFIX = <<__RISCV_PREFIX__>>
+BSP = <<__BSP__>>
+BSP_FLOAT = <<__BSP_FLOAT__>>
+BSP_COMPRESSED = <<__BSP_COMPRESSED__>>
+BSP_ATOMIC = <<__BSP_ATOMIC__>>
 
 -include $(BSP)/makefile.bsp.include
 
@@ -46,6 +52,7 @@ LDFLAGS = -nostdlib \
           -Wl,--print-memory-usage \
           -Wl,--relax \
           -L$(THISDIR) \
+          $(BSP_LDFLAGS) \
           $(EXTRA_LDFLAGS)
 
 ifeq ($(PRINTF_FLOAT),1)
@@ -73,7 +80,7 @@ bin: $(target).bin
 
 $(target): $(OBJS)
 	$(MKDIR) $(dir $@)
-	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.dump: %
 	$(MKDIR) $(dir $@)

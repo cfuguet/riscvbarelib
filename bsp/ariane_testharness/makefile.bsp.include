@@ -18,11 +18,6 @@
 #  @file   ariane_testharness/makefile.bsp.include
 #  @author Cesar Fuguet
 ##
-XLEN    = 64
-BSP_FPU = 1
-
-RISCV_PREFIX = riscv$(XLEN)-unknown-elf-
-
 CC  = $(RISCV_PREFIX)gcc
 CXX = $(RISCV_PREFIX)g++
 LD  = $(RISCV_PREFIX)ld
@@ -31,26 +26,32 @@ OD  = $(RISCV_PREFIX)objdump
 OC  = $(RISCV_PREFIX)objcopy
 AR  = $(RISCV_PREFIX)ar
 
+C_EXT = $(if $(filter $(BSP_COMPRESSED),1),c)
+A_EXT = $(if $(filter $(BSP_ATOMIC),1),a)
+
 ifeq ($(XLEN),64)
-  ifeq ($(BSP_FPU),1)
-    ARCH = rv64imafdc
-    ABI  = lp64d
+  ifeq ($(BSP_FLOAT),1)
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)fd
+    ABI = lp64d
   else
-    ARCH = rv64imac
-    ABI  = lp64
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+    ABI = lp64
   endif
 else
-  ifeq ($(BSP_FPU),1)
-    ARCH = rv32imafc
-    ABI  = ilp32f
+  ifeq ($(BSP_FLOAT),1)
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)f
+    ABI = ilp32f
   else
-    ARCH = rv32imac
-    ABI  = ilp32
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+    ABI = ilp32
   endif
 endif
 
-MODEL      = medany
+ARCH = $(LDARCH)_zicsr
+MODEL = medany
+
 BSP_CFLAGS = -march=${ARCH} -mabi=${ABI} -mcmodel=${MODEL} -mrelax
+BSP_LDFLAGS = -march=${LDARCH} -mabi=${ABI} -mcmodel=${MODEL} -mrelax
 
 #  UART parameters
 #  {{{
