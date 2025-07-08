@@ -31,6 +31,9 @@
 #elif (__riscv_xlen == 64)
 #define __LD ld
 #define __ST sd
+#elif (__riscv_xlen == 128)
+#define __LD lq
+#define __ST sq
 #endif
 
 .macro CPU_CONTEXT_SAVE

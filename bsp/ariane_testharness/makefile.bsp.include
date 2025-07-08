@@ -38,12 +38,22 @@ ifeq ($(XLEN),64)
     ABI = lp64
   endif
 else
-  ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)f
-    ABI = ilp32f
+  ifeq ($(XLEN),128)
+    ifeq ($(BSP_FPU),1)
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)fd
+      ABI  = llp128d
+    else
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+      ABI  = llp128
+    endif
   else
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
-    ABI = ilp32
+    ifeq ($(BSP_FLOAT),1)
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)f
+      ABI = ilp32f
+    else
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+      ABI = ilp32
+    endif
   endif
 endif
 
@@ -85,7 +95,7 @@ endif
 #  }}}
 
 BSP_INCDIRS = $(BSP)/include \
-              $(RVB_HOME)/drivers/clint/include \
-              $(RVB_HOME)/drivers/uart16550/include
+              .$(RVB_HOME)/drivers/clint/include \
+              .$(RVB_HOME)/drivers/uart16550/include
 
 BSP_STACK_SIZE = 0x4000

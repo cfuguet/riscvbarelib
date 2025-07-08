@@ -80,7 +80,7 @@ bin: $(target).bin
 
 $(target): $(OBJS)
 	$(MKDIR) $(dir $@)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.dump: %
 	$(MKDIR) $(dir $@)
@@ -96,7 +96,7 @@ $(target): $(OBJS)
 
 $O/%.o: %.cpp
 	$(MKDIR) $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CC) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 $O/%.o: %.c
 	$(MKDIR) $(dir $@)
