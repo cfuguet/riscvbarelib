@@ -48,6 +48,12 @@ static inline void iowritel(uintptr_t addr, uint64_t val)
 	cpu_dfence();
 }
 
+static inline void iowritell(uintptr_t addr, uint64_t val)
+{
+	*((volatile __uint128_t*)addr) = val;
+	cpu_dfence();
+}
+
 static inline uint8_t ioreadb(uintptr_t addr)
 {
 	return *((volatile uint8_t*)addr);
