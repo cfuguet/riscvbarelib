@@ -31,7 +31,7 @@ A_EXT = $(if $(filter $(BSP_ATOMIC),1),a)
 
 ifeq ($(XLEN),64)
   ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)fd
+    LDARCH = rv$(XLEN)im$(A_EXT)fd$(C_EXT)
     ABI = lp64d
   else
     LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
@@ -39,7 +39,7 @@ ifeq ($(XLEN),64)
   endif
 else
   ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)f
+    LDARCH = rv$(XLEN)im$(A_EXT)f$(C_EXT)
     ABI = ilp32f
   else
     LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
