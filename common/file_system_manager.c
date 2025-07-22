@@ -22,7 +22,7 @@
 #include "common/file_system_manager.h"
 
 uint8_t **fake_flash;
-// Fonctions de bas niveau
+
 int ramfs_read(const struct lfs_config *cfg, lfs_block_t block,
                lfs_off_t off, void *buffer, lfs_size_t size) {
     if (block >= BLOCK_COUNT || off + size > BLOCK_SIZE) return LFS_ERR_IO;
@@ -47,12 +47,10 @@ int ramfs_erase(const struct lfs_config *cfg, lfs_block_t block) {
 }
 
 int ramfs_sync(const struct lfs_config *cfg) {
-    // Rien à faire pour la RAM
     return 0;
 }
 
 
-// Configuration LittleFS
 struct lfs_config cfg = {
     .read  = ramfs_read,
     .prog  = ramfs_prog,
@@ -83,7 +81,6 @@ void init_file_structure(){
     int err = lfs_mount(&lfs, &cfg);
 
     if (err) {
-        // Si le système n'existe pas, formater
         lfs_format(&lfs, &cfg);
         lfs_mount(&lfs, &cfg);
     }
