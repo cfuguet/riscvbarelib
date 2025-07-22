@@ -52,3 +52,8 @@ The output path (O) shall contain after the installation the following files:
 - Object files (\*.o)
 
 The makefile.include shall be included from the Makefile of user's applications to compile the applications with the riscvbarelib runtime and the target BSP.
+
+
+### Third Party
+
+littlefs : https://github.com/littlefs-project/littlefs
