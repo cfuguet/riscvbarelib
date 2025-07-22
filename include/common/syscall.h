@@ -22,8 +22,12 @@
 #define __SYSCALL_H__
 
 #include <sys/stat.h>
+#include "lfs.h"
+#include "file_system_manager.h"
 
+extern lfs_t lsf;
 void *_sbrk(int incr);
+int _open (char * file_name, int flags, int mode );
 int _close(int file);
 int _fstat(int file, struct stat *st);
 int _isatty(int file);
