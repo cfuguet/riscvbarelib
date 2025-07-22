@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include "common/file_system_manager.h"
 
+uint8_t **fake_flash;
 // Fonctions de bas niveau
 int ramfs_read(const struct lfs_config *cfg, lfs_block_t block,
                lfs_off_t off, void *buffer, lfs_size_t size) {
@@ -73,7 +74,6 @@ my_files_ptr list_files = NULL;
 
 lfs_t lfs;
 
-uint8_t **fake_flash;
 
 void init_file_structure(){
     fake_flash = malloc(BLOCK_COUNT * sizeof(uint8_t *));
