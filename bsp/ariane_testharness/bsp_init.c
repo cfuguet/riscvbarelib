@@ -20,11 +20,15 @@
  */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "common/cpu.h"
 #include "common/cpu_defs.h"
 #include "common/tohost.h"
 #include "common/mp.h"
 #include "common/io.h"
+#include "common/lfs.h"
+#include "common/syscall.h"
+#include "common/file_system_manager.h"
 
 extern uintptr_t UART_BASE;
 void bsp_mp_init();
@@ -54,6 +58,8 @@ int dummy_getchar()
 }
 #endif
 
+
+
 void bsp_init()
 {
     extern void (*_putchar)(char c);
@@ -73,15 +79,14 @@ void bsp_init()
     _putchar = dummy_putchar;
     _getchar = dummy_getchar;
 #endif
-
     _tohost_exit = bsp_tohost_exit;
 
-    printf("Executing the riscvbarelib env (compiled: %s | %s)\n",
+    printf("Executing the bare cea riscv environment (compiled: %s | %s)\n",
             __DATE__, __TIME__);
 
-    write_csr(mhpmevent3, 1); // select Icache Miss Event
-    write_csr(mhpmevent4, 2); // select Dcache Miss Event
-
+    write_csr(CSR_MHPMEVENT3, 1); // select Icache Miss Event
+    write_csr(CSR_MHPMEVENT4, 2); // select Dcache Miss Event
+    init_file_structure();
     bsp_mp_init();
     bsp_irq_init();
 }
