@@ -25,14 +25,14 @@
 __attribute__ ((section(".tohost")))
 uint64_t tohost;
 
+#define POWER_OFF_QEMU_ADRESS 0x100000
 
 void bsp_tohost_exit(int status)
 {
     static const uint64_t VERIF_SUCCESS_CODE = 0x00000001ULL;
     static const uint64_t VERIF_FAILURE_CODE = 0xbad0bad1ULL;
-
     iowritel((uintptr_t)&tohost, status == EXIT_SUCCESS ?
             VERIF_SUCCESS_CODE : VERIF_FAILURE_CODE);
-
-    while(1);
+    (*((volatile uint32_t *) POWER_OFF_QEMU_ADRESS ) ) = 0x5555;
+    while(1){}
 }
