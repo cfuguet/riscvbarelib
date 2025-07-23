@@ -26,6 +26,10 @@ bsp-objs-y += $(O)/bsp/shared/bsp_start.o
 bsp-objs-y += $(O)/drivers/clint/clint.o
 bsp-objs-y += $(O)/drivers/uart16550/uart16550.o
 
+ifdef M5
+bsp-objs-y += $(O)/bsp/shared/m5/m5op.o
+endif
+
 VPATH += $(BSP)
 VPATH += $(RVB_HOME)/bsp/shared
 VPATH += $(RVB_HOME)/drivers

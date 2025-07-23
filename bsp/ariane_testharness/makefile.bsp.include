@@ -75,6 +75,9 @@ endif
 ifdef NSTDOUT
   BSP_CFLAGS += -DNSTDOUT
 endif
+ifdef M5
+  BSP_CFLAGS += -DM5
+endif
 #  }}}
 
 #  Cache parameters
@@ -87,5 +90,9 @@ endif
 BSP_INCDIRS = $(BSP)/include \
               $(RVB_HOME)/drivers/clint/include \
               $(RVB_HOME)/drivers/uart16550/include
+
+ifdef M5
+BSP_INCDIRS += $(RVB_HOME)/bsp/shared/m5
+endif
 
 BSP_STACK_SIZE = 0x4000
