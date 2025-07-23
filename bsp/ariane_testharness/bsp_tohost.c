@@ -27,9 +27,7 @@
 __attribute__ ((section(".tohost")))
 uint64_t tohost;
 #else
-#include "gem5/asm/generic/m5ops.h"
-void m5_exit();
-void m5_fail();
+#include "m5ops.h"
 #endif
 
 
@@ -43,9 +41,9 @@ void bsp_tohost_exit(int status)
             VERIF_SUCCESS_CODE : VERIF_FAILURE_CODE);
 #else
     if (status == EXIT_SUCCESS) {
-        m5_exit();
+        m5_exit(10);
     } else {
-        m5_fail();
+        m5_fail(10, status);
     }
 #endif
 
