@@ -85,7 +85,8 @@ all: $(target) gen-build-mk
 
 .PHONY: gen-build-mk
 gen-build-mk:
-	sed -e 's|<<__XLEN__>>|$(XLEN)|g' \
+	sed -e 's|<<__RVB_HOME__>>|$(MAKEFILE_DIR)|g' \
+	    -e 's|<<__XLEN__>>|$(XLEN)|g' \
 	    -e 's|<<__RISCV_PREFIX__>>|$(RISCV_PREFIX)|g' \
 	    -e 's|<<__BSP__>>|$(abspath $(BSP))|g' \
 	    -e 's|<<__BSP_FLOAT__>>|$(BSP_FLOAT)|g' \

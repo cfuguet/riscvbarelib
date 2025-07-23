@@ -20,6 +20,7 @@
 ##
 THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
+RVB_HOME = <<__RVB_HOME__>>
 XLEN = <<__XLEN__>>
 RISCV_PREFIX = <<__RISCV_PREFIX__>>
 BSP = <<__BSP__>>
