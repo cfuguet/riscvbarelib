@@ -75,6 +75,9 @@ endif
 ifdef NSTDOUT
   BSP_CFLAGS += -DNSTDOUT
 endif
+ifdef BSP_NCPUS
+  BSP_CFLAGS += -DBSP_CONFIG_NCPUS=$(BSP_NCPUS)
+endif
 ifdef M5
   BSP_CFLAGS += -DM5
 endif

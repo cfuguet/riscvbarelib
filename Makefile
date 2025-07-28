@@ -34,11 +34,13 @@ O = build
 
 ## ==================================================================
 #  Include the BSP makefile definitions
+RVB_HOME = $(MAKEFILE_DIR)
 XLEN ?= 64
 RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 BSP_FLOAT ?= 1
 BSP_COMPRESSED ?= 1
 BSP_ATOMIC ?= 1
+BSP_NCPUS ?= 1
 include $(BSP)/makefile.bsp.include
 
 ## ==================================================================
@@ -85,13 +87,14 @@ all: $(target) gen-build-mk
 
 .PHONY: gen-build-mk
 gen-build-mk:
-	sed -e 's|<<__RVB_HOME__>>|$(MAKEFILE_DIR)|g' \
+	sed -e 's|<<__RVB_HOME__>>|$(RVB_HOME)|g' \
 	    -e 's|<<__XLEN__>>|$(XLEN)|g' \
 	    -e 's|<<__RISCV_PREFIX__>>|$(RISCV_PREFIX)|g' \
 	    -e 's|<<__BSP__>>|$(abspath $(BSP))|g' \
 	    -e 's|<<__BSP_FLOAT__>>|$(BSP_FLOAT)|g' \
 	    -e 's|<<__BSP_COMPRESSED__>>|$(BSP_COMPRESSED)|g' \
 	    -e 's|<<__BSP_ATOMIC__>>|$(BSP_ATOMIC)|g' \
+	    -e 's|<<__BSP_NCPUS__>>|$(BSP_NCPUS)|g' \
 	    makefile.include.template > $(O)/makefile.include
 	$(CP) linkcmds.include $(O)/
 
