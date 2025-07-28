@@ -78,5 +78,6 @@ When compiling the riscvbarelib for this BSP, you can add additional parameters:
          BSP_COMPRESSED=<support of compressed instructions: default is 1> \
          BSP_ATOMIC=<support of atomic memory operations: default is 1> \
          BSP_NCPUS=<number of cores in the platform: default is 1> \
+         M5=<Use m5ops library for Gem5 simulation: default is 0> \
          O=<path to the output installation path of the BSP>
 ```
