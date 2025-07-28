@@ -47,9 +47,9 @@ In particular, the script compiles the newlib library with some specific flags t
 To compile the library, use the following command:
 
 ```sh
-    make BSP=<path to the target BSP> \
-         XLEN=<32/64/128: default is 64> \
-         O=<path to the output installation path of the BSP: default is ./build>
+make BSP=<path to the target BSP> \
+     XLEN=<32/64/128: default is 64> \
+     O=<path to the output installation path of the BSP: default is ./build>
 ```
 
 Some example BSPs are provided in the bsp/ subdirectory.
@@ -73,11 +73,11 @@ This platform is, for the essential, compatible to the Hifive board address map.
 When compiling the riscvbarelib for this BSP, you can add additional parameters:
 
 ```sh
-    make BSP=<path to the target BSP> \
-         BSP_FLOAT=<support of single/double floating point: default is 1> \
-         BSP_COMPRESSED=<support of compressed instructions: default is 1> \
-         BSP_ATOMIC=<support of atomic memory operations: default is 1> \
-         BSP_NCPUS=<number of cores in the platform: default is 1> \
-         M5=<Use m5ops library for Gem5 simulation: default is 0> \
-         O=<path to the output installation path of the BSP>
+make BSP=<path to the target BSP> \
+     BSP_FLOAT=<support of single/double floating point: default is 1> \
+     BSP_COMPRESSED=<support of compressed instructions: default is 1> \
+     BSP_ATOMIC=<support of atomic memory operations: default is 1> \
+     BSP_NCPUS=<number of cores in the platform: default is 1> \
+     M5=<Use m5ops library for Gem5 simulation: default is 0> \
+     O=<path to the output installation path of the BSP>
 ```
