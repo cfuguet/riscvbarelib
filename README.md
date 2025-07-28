@@ -73,7 +73,7 @@ This platform is, for the essential, compatible to the Hifive board address map.
 When compiling the riscvbarelib for this BSP, you can add additional parameters:
 
 ```sh
-make BSP=<path to the target BSP> \
+make BSP=bsp/ariane_testharness \
      BSP_FLOAT=<support of single/double floating point: default is 1> \
      BSP_COMPRESSED=<support of compressed instructions: default is 1> \
      BSP_ATOMIC=<support of atomic memory operations: default is 1> \
