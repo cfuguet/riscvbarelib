@@ -2,7 +2,10 @@
 #define __BSP_CONFIG_H__
 
 #define BSP_CONFIG_HARTID_BITS 8
-#define BSP_CONFIG_NCPUS       1
+
+#ifndef BSP_CONFIG_NCPUS
+#define BSP_CONFIG_NCPUS 1
+#endif
 
 #ifndef BSP_CONFIG_HARTID_BOOT
 #define BSP_CONFIG_HARTID_BOOT 0

@@ -236,6 +236,15 @@ void bsp_start(int hartid)
     );
 #endif
 
+    // Enable software & timer interrupts
+    asm volatile (
+        "li   t0, %[mask]    \n"
+        "csrs mie, t0        \n"
+        : /* no outputs */
+        : [mask] "i"(MIE_MSIE | MIE_MTIE)
+        : "t0", "memory"
+    );
+
     if (hartid == BSP_CONFIG_HARTID_BOOT) {
         bsp_primary_start();
         return;
