@@ -19,11 +19,16 @@
  *  @author      Valentin Isaac--Chassande
  */
 #include "common/bitset.h"
+#if __xlen_riscv == 128
+#define UINT_T __uint128_t
+#else
+#define UINT_T uint64_t
+#endif
 
 void bitset_init(bitset_t * bitset, int n) {
     bitset->n = n;
-    bitset->tab_length = n/64+1;
-    bitset->tab = (uint64_t *)malloc(bitset->tab_length*sizeof(uint64_t));
+    bitset->tab_length = n/__riscv_xlen+1;
+    bitset->tab = (UINT_T *)malloc(bitset->tab_length*sizeof(uint64_t));
     for (int i = 0; i < bitset->tab_length; i++)
         bitset->tab[i] = 0;
 }
@@ -31,47 +36,47 @@ void bitset_init(bitset_t * bitset, int n) {
 void bitset_set(bitset_t * bitset, int i) {
     if (i >= bitset->n)
         return;
-    int idx = i%64;
-    int block_idx = i/64;
-    uint64_t block = bitset->tab[block_idx];
-    block |= ((uint64_t)1<<(63-idx));
+    int idx = i%__riscv_xlen;
+    int block_idx = i/__riscv_xlen;
+    UINT_T block = bitset->tab[block_idx];
+    block |= ((UINT_T)1<<((__riscv_xlen - 1)-idx));
     bitset->tab[block_idx] = block;
 }
 
 void bitset_reset(bitset_t * bitset, int i) {
     if (i >= bitset->n)
         return;
-    int idx = i%64;
-    int block_idx = i/64;
-    uint64_t block = bitset->tab[block_idx];
-    block &= ~((uint64_t)1<<(63-idx));
+    int idx = i%__riscv_xlen;
+    int block_idx = i/__riscv_xlen;
+    UINT_T block = bitset->tab[block_idx];
+    block &= ~((UINT_T)1<<((__riscv_xlen - 1)-idx));
     bitset->tab[block_idx] = block;
 }
 
 void bitset_flip(bitset_t * bitset, int i) {
     if (i >= bitset->n)
         return;
-    int idx = i%64;
-    int block_idx = i/64;
-    uint64_t block = bitset->tab[block_idx];
-    block ^= ((uint64_t)1<<(63-idx));
+    int idx = i%__riscv_xlen;
+    int block_idx = i/__riscv_xlen;
+    UINT_T block = bitset->tab[block_idx];
+    block ^= ((UINT_T)1<<((__riscv_xlen - 1)-idx));
     bitset->tab[block_idx] = block;
 }
 
 int bitset_test(bitset_t * bitset, int i) {
     if (i >= bitset->n)
         return 0;
-    int idx = i%64;
-    int block_idx = i/64;
-    uint64_t block = bitset->tab[block_idx];
-    return (int)((block>>(63-idx))&(uint64_t)1);
+    int idx = i%__riscv_xlen;
+    int block_idx = i/__riscv_xlen;
+    UINT_T block = bitset->tab[block_idx];
+    return (int)((block>>((__riscv_xlen - 1)-idx))&(UINT_T)1);
 }
 
 int bitset_all(bitset_t * bitset) {
     for (int i = 0; i < bitset->tab_length-1; i++)
         if (bitset->tab[i] != 0xffffffffffffffff)
             return 0;
-    uint64_t last = 0xffffffffffffffff<<(64-bitset->n%64);
+    UINT_T last = 0xffffffffffffffff<<(__riscv_xlen-bitset->n%__riscv_xlen);
     if (bitset->tab[bitset->tab_length-1] != last)
         return 0;
     return 1;
@@ -94,8 +99,8 @@ int bitset_none(bitset_t * bitset) {
 int bitset_count(bitset_t * bitset) {
     int cnt = 0;
     for (int i = 0; i < bitset->tab_length; i++)
-        for (int j = 0; j < 64; j++)
-            if (bitset->tab[i] & ((uint64_t)1<<j))
+        for (int j = 0; j < __riscv_xlen; j++)
+            if (bitset->tab[i] & ((UINT_T)1<<j))
                 cnt += 1;
     return cnt;
 }

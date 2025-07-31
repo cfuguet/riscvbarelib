@@ -147,6 +147,8 @@ static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
 
 #if (__riscv_xlen == 32)
 #define __csr_fmt "%x"
+#elif (__riscv_xlen == 64)
+#define __csr_fmt "%lx"
 #else
 #define __csr_fmt "%lx"
 #endif

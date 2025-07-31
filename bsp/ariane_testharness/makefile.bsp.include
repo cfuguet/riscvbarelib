@@ -39,12 +39,22 @@ ifeq ($(XLEN),64)
     ABI = lp64
   endif
 else
-  ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)f$(C_EXT)_$(ZICBOM_EXT)
-    ABI = ilp32f
+  ifeq ($(XLEN),128)
+    ifeq ($(BSP_FLOAT),1)
+      LDARCH = rv$(XLEN)im$(A_EXT)fd$(C_EXT)_$(ZICBOM_EXT)
+      ABI  = llp128d
+    else
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)_$(ZICBOM_EXT)
+      ABI  = llp128
+    endif
   else
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)_$(ZICBOM_EXT)
-    ABI = ilp32
+    ifeq ($(BSP_FLOAT),1)
+      LDARCH = rv$(XLEN)im$(A_EXT)f$(C_EXT)_$(ZICBOM_EXT)
+      ABI = ilp32f
+    else
+      LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)_$(ZICBOM_EXT)
+      ABI = ilp32
+    endif
   endif
 endif
 

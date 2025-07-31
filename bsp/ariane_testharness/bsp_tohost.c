@@ -27,7 +27,11 @@
 #include "m5ops.h"
 #else
 __attribute__ ((section(".tohost")))
+#if __riscv_xlen == 128 
+__uint128_t tohost;
+#else
 uint64_t tohost;
+#endif
 #endif
 
 void bsp_tohost_exit(int status)

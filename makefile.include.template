@@ -38,7 +38,7 @@ RMDIR         = rmdir
 
 PRINTF_FLOAT  = 1
 LINKER_SCRIPT = $(BSP)/linkcmds
-MEM_WORD_SIZE = 64
+MEM_WORD_SIZE = 128
 
 CFLAGS += -ffunction-sections \
           -fdata-sections \
