@@ -20,12 +20,14 @@
 ##
 THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
+RVB_HOME = <<__RVB_HOME__>>
 XLEN = <<__XLEN__>>
 RISCV_PREFIX = <<__RISCV_PREFIX__>>
 BSP = <<__BSP__>>
 BSP_FLOAT = <<__BSP_FLOAT__>>
 BSP_COMPRESSED = <<__BSP_COMPRESSED__>>
 BSP_ATOMIC = <<__BSP_ATOMIC__>>
+BSP_NCPUS = <<__BSP_NCPUS__>>
 
 -include $(BSP)/makefile.bsp.include
 
@@ -60,7 +62,7 @@ ifeq ($(PRINTF_FLOAT),1)
 endif
 
 INCLUDES = -I$(RVB_HOME)/include \
-           -I$(BSP)/include \
+           $(addprefix -I,$(BSP_INCDIRS)) \
            $(EXTRA_INCLUDES)
 
 LIBS = $(EXTRA_LIBS) -Wl,--start-group -lc -lgcc -lrvb -Wl,--end-group

@@ -1,6 +1,7 @@
 /**
  * Copyright 2023,2024 CEA*
  * Commissariat a l'Energie Atomique et aux Energies Alternatives
+ * Copyright 2025 Inria, Univ. Grenoble Alpes, TIMA
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +23,29 @@
 #include "common/tohost.h"
 #include "common/io.h"
 
+#ifndef M5
 __attribute__ ((section(".tohost")))
 uint64_t tohost;
+#else
+#include "m5ops.h"
+#endif
 
 #define POWER_OFF_QEMU_ADRESS 0x100000
 
 void bsp_tohost_exit(int status)
 {
+#ifndef M5
     static const uint64_t VERIF_SUCCESS_CODE = 0x00000001ULL;
     static const uint64_t VERIF_FAILURE_CODE = 0xbad0bad1ULL;
     iowritel((uintptr_t)&tohost, status == EXIT_SUCCESS ?
             VERIF_SUCCESS_CODE : VERIF_FAILURE_CODE);
+#else
+    if (status == EXIT_SUCCESS) {
+        m5_exit(10);
+    } else {
+        m5_fail(10, status);
+    }
+#endif
     (*((volatile uint32_t *) POWER_OFF_QEMU_ADRESS ) ) = 0x5555;
     while(1){}
 }
