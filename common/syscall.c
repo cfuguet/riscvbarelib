@@ -29,7 +29,9 @@
 #include <sys/times.h>
 #include <sys/time.h>
 #include <sys/reent.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h> 
 
 extern lfs_t lfs;
 
@@ -55,11 +57,41 @@ int _close(int file)
     return remove_file(file);
 }
 
+int _stat(char * name, struct stat *st){
+    struct lfs_info* info = malloc(sizeof(struct lfs_info)); 
+    int result = lfs_stat(&lfs, name, info);
+    st->st_size = info->size;
+    switch (info->type){
+        case LFS_TYPE_REG:
+            st->st_mode = S_IFREG;
+            break;
+        case LFS_TYPE_DIR:
+            st->st_mode = S_IFDIR;
+            break;
+    }
+    free(info);
+    return result;
+}
+
 int _fstat(int file, struct stat *st)
 {
-    cpu_dcache_invalidate_range((uintptr_t)st, sizeof(void*));
-    st->st_mode = S_IFCHR;
-    return 0;
+    my_files_ptr file_ptr = search_file(file);
+    if (!file_ptr){
+        return -1;
+    }
+    struct lfs_info* info = malloc(sizeof(struct lfs_info)); 
+    int result = lfs_stat(&lfs, file_ptr->name, info);
+    st->st_size = info->size;
+    switch (info->type){
+        case LFS_TYPE_REG:
+            st->st_mode = S_IFREG;
+            break;
+        case LFS_TYPE_DIR:
+            st->st_mode = S_IFDIR;
+            break;
+    }
+    free(info);
+    return result;
 }
 
 int _isatty(int file)
