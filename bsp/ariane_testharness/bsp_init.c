@@ -76,8 +76,8 @@ void bsp_init()
 
     _tohost_exit = bsp_tohost_exit;
 
-    printf("Executing the riscvbarelib env (compiled: %s | %s)\n",
-            __DATE__, __TIME__);
+    // printf("Executing the riscvbarelib env (compiled: %s | %s)\n",
+    //         __DATE__, __TIME__);
 
     write_csr(mhpmevent3, 1); // select Icache Miss Event
     write_csr(mhpmevent4, 2); // select Dcache Miss Event
