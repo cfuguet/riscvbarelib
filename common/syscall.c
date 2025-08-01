@@ -23,12 +23,18 @@
 #include "common/ticket_mutex.h"
 #include "common/threads.h"
 #include "common/cpu.h"
+#include "common/lfs.h"
+
 #include "bsp/bsp_config.h"
 #include <sys/times.h>
 #include <sys/time.h>
 #include <sys/reent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h> 
 
-void* __dso_handle = (void*)&__dso_handle;
+extern lfs_t lfs;
+
 
 void (*_putchar)(char c)         = NULL;
 int  (*_getchar)()               = NULL;
@@ -49,24 +55,77 @@ void *_sbrk(int incr)
 
 int _close(int file)
 {
-    return -1;
+    return close_file(file);
+}
+
+int readir(char *name, char ** result)
+{
+    return file_system_readir(name, result);
+}
+
+int mkdir(const char *name, unsigned int mode)
+{
+    return file_system_mkdir(name, mode);
+}
+
+int chdir(const char *name)
+{
+    return file_system_chdir(name);
+}
+
+int _stat(char * name, struct stat *st){
+    struct lfs_info* info = malloc(sizeof(struct lfs_info)); 
+    int result = lfs_stat(&lfs, name, info);
+    st->st_size = info->size;
+    switch (info->type){
+        case LFS_TYPE_REG:
+            st->st_mode = S_IFREG;
+            break;
+        case LFS_TYPE_DIR:
+            st->st_mode = S_IFDIR;
+            break;
+    }
+    free(info);
+    return result;
 }
 
 int _fstat(int file, struct stat *st)
 {
-    cpu_dcache_invalidate_range((uintptr_t)st, sizeof(void*));
-    st->st_mode = S_IFCHR;
-    return 0;
+    return -1;
+    my_files_ptr file_ptr = search_file(file);
+    if (!file_ptr){
+        return -1;
+    }
+    struct lfs_info* info = malloc(sizeof(struct lfs_info)); 
+    int result = lfs_stat(&lfs, file_ptr->name, info);
+    st->st_size = info->size;
+    switch (info->type){
+        case LFS_TYPE_REG:
+            st->st_mode = S_IFREG;
+            break;
+        case LFS_TYPE_DIR:
+            st->st_mode = S_IFDIR;
+            break;
+    }
+    free(info);
+    return result;
 }
 
 int _isatty(int file)
 {
-    return 1;
+    if ( (file >= 0 && file <= 2) || get_file_by_fd(file)){
+        return 1;
+    }
+    return 0;
 }
 
 int _lseek(int file, int ptr, int dir)
 {
-    return 0;
+    lfs_file_t * file_lfs = get_file_by_fd(file);
+    if (!file_lfs){
+        return -1;
+    }
+    return lfs_file_seek(&lfs, file_lfs, ptr, dir);
 }
 
 //
@@ -109,7 +168,13 @@ int _write(int file, char * ptr, int len)
 {
     int written = 0;
 
-    if ((file != 1) && (file != 2)) return -1;
+    if ((file != 1) && (file != 2)){
+        lfs_file_t * file_lfs = get_file_by_fd(file);
+        if (!file_lfs){
+            return -1;
+        }
+        return lfs_file_write(&lfs, file_lfs, ptr, len);
+    }
     if (_putchar == NULL) return -1;
 
     cpu_dcache_invalidate_range((uintptr_t)ptr, len);
@@ -120,11 +185,33 @@ int _write(int file, char * ptr, int len)
     return written;
 }
 
+int _open(char * name, int flags, int mode){
+    enum lfs_open_flags true_flag = 0;
+    if (flags & 1){
+        true_flag |= LFS_O_CREAT;
+    }
+    if (flags & 2){
+        true_flag |= LFS_O_RDONLY;
+    }
+    if (flags & 4){
+        true_flag |= LFS_O_WRONLY;
+    }
+    return add_file(name, true_flag);
+}
+
+
 int _read(int file, char * ptr, int len)
 {
     int read = 0;
 
-    if (file != 0) return -1;
+    if (file != 0){
+        lfs_file_t * file_lfs = get_file_by_fd(file);
+        if (!file_lfs){
+            return -1;
+        }
+        int result = lfs_file_read(&lfs, file_lfs, ptr, len);
+        return result;
+    }
     if (_getchar == NULL) return -1;
 
     cpu_dcache_invalidate_range((uintptr_t)ptr, len);

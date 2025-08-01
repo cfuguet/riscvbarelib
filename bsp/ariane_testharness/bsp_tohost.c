@@ -30,13 +30,13 @@ uint64_t tohost;
 #include "m5ops.h"
 #endif
 
+#define POWER_OFF_QEMU_ADRESS 0x100000
 
 void bsp_tohost_exit(int status)
 {
 #ifndef M5
     static const uint64_t VERIF_SUCCESS_CODE = 0x00000001ULL;
     static const uint64_t VERIF_FAILURE_CODE = 0xbad0bad1ULL;
-
     iowritel((uintptr_t)&tohost, status == EXIT_SUCCESS ?
             VERIF_SUCCESS_CODE : VERIF_FAILURE_CODE);
 #else
@@ -46,6 +46,6 @@ void bsp_tohost_exit(int status)
         m5_fail(10, status);
     }
 #endif
-
-    while(1);
+    (*((volatile uint32_t *) POWER_OFF_QEMU_ADRESS ) ) = 0x5555;
+    while(1){}
 }

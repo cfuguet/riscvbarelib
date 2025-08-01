@@ -29,3 +29,6 @@ common-objs-y += $(O)/common/threads.o
 common-objs-y += $(O)/common/ticket_mutex.o
 common-objs-y += $(O)/common/trap_entry.o
 common-objs-y += $(O)/common/trap_handler.o
+common-objs-y += $(O)/common/lfs.o
+common-objs-y += $(O)/common/file_system_manager.o
+common-objs-y += $(O)/common/lfs_util.o

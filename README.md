@@ -81,3 +81,7 @@ make BSP=bsp/ariane_testharness \
      M5=<Use m5ops library for Gem5 simulation: default is 0> \
      O=<path to the output installation path of the BSP>
 ```
+
+### Third Party
+
+littlefs : https://github.com/littlefs-project/littlefs
