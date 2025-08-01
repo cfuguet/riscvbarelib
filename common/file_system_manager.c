@@ -23,6 +23,7 @@
 
 uint8_t **fake_flash;
 
+
 int ramfs_read(const struct lfs_config *cfg, lfs_block_t block,
                lfs_off_t off, void *buffer, lfs_size_t size) {
     if (block >= BLOCK_COUNT || off + size > BLOCK_SIZE) return LFS_ERR_IO;
@@ -67,10 +68,8 @@ struct lfs_config cfg = {
 };
 
 int current_fd = 3;
-
-my_files_ptr list_files = NULL;
-
 lfs_t lfs;
+my_dir_ptr current_directory = NULL;
 
 
 void init_file_structure(){
@@ -84,10 +83,11 @@ void init_file_structure(){
         lfs_format(&lfs, &cfg);
         lfs_mount(&lfs, &cfg);
     }
+    file_system_mkdir("/", 0);
 }
 
 my_files_ptr search_file(int fd){
-    for (my_files_ptr cur = list_files; cur != NULL; cur=cur->next){
+    for (my_files_ptr cur = current_directory->child_files; cur != NULL; cur=cur->next){
         if (cur->fd == fd){
             return cur;
         }
@@ -101,32 +101,98 @@ lfs_file_t* get_file_by_fd(int fd){
         return &(tmp->file);
     }
     return NULL;
-
 }
 
 int add_file(char * name, enum lfs_open_flags true_flag ){
-    if (! list_files){
-        list_files = malloc(sizeof(my_files_t));
+    for (my_files_ptr cur = current_directory->child_files; cur != NULL; cur=cur->next){
+        if (strcmp(cur->name, name) == 0){
+            cur->is_open = true;
+            lfs_file_open(&lfs, &(cur->file), name, true_flag);
+            cur->fd = current_fd++;
+            return cur->fd;
+        }
     }
     my_files_ptr new_node = malloc(sizeof(my_files_t));
     new_node->name = strdup(name);
-    new_node->next = list_files;
-    list_files = new_node;
-    lfs_file_open(&lfs, &(new_node->file), name, true_flag);
-    new_node->fd=current_fd++;
-    return new_node->fd;
+    new_node->next = current_directory->child_files;
+    new_node->is_open = true;
+    current_directory->child_files = new_node;
+    lfs_file_open(&lfs, &(current_directory->child_files->file), name, true_flag);
+    current_directory->child_files->fd=current_fd++;
+    return current_directory->child_files->fd;
+}
+
+int file_system_mkdir(const char *name, unsigned int mode)
+{
+    my_dir_ptr new_dir = malloc(sizeof(my_dir_t));
+    new_dir->name = strdup(name);
+    new_dir->child_files = NULL;
+    new_dir->child_dir = NULL;
+    new_dir->next = NULL;
+    new_dir->dir = malloc(sizeof(lfs_dir_t));
+    new_dir->prev_directory = current_directory;
+    int result = lfs_mkdir(&lfs, name);
+    if (!current_directory){
+        current_directory = new_dir;
+    } else{
+        new_dir->next = current_directory->child_dir;
+        current_directory->child_dir = new_dir;
+    }
+    return result;
+}
+
+int file_system_chdir( const char* path )
+{
+    for (my_dir_ptr cur_dir = current_directory->child_dir; cur_dir != NULL; cur_dir = cur_dir->next){
+        if ( strcmp(cur_dir->name, path) == 0){
+            lfs_dir_close(&lfs, current_directory->dir);
+            current_directory = cur_dir;
+            return lfs_dir_open(&lfs, cur_dir->dir , path);
+        }
+    }
+    return -1;
+}
+
+int file_system_readir(char *name, char ** result)
+{
+    if (strcmp(name, current_directory->name) == 0) {
+        int i = 0;
+        for (my_files_ptr cur_file = current_directory->child_files; cur_file != NULL; cur_file = cur_file->next){
+            result[i] = strdup(cur_file->name);
+            i++;
+        }
+        for (my_dir_ptr cur_dir = current_directory->child_dir; cur_dir != NULL; cur_dir = cur_dir->next){
+            result[i] = strdup(cur_dir->name);
+            i++;
+        }
+        result[i] = NULL;
+    }
+
+    return 0;
 }
 
 int remove_file(int fd){
-    for (my_files_ptr cur = list_files, prev = cur; cur != NULL; cur=cur->next){
+    for (my_files_ptr cur = current_directory->child_files; cur != NULL; cur=cur->next){
         if (cur->fd == fd){
-            prev->next = cur->next;
             lfs_file_close(&lfs, &(cur->file));
+    //        prev->next = cur->next;
             int result = cur->fd;
+            free(cur->name);
             free(cur);
             return result;
         }
-        prev = cur;
+    }
+    return -1;
+}
+
+
+int close_file(int fd){
+    for (my_files_ptr cur = current_directory->child_files; cur != NULL; cur=cur->next){
+        if (cur->fd == fd){
+            cur->is_open = false;
+            lfs_file_close(&lfs, &(cur->file));
+            return -1;
+        }
     }
     return -1;
 }

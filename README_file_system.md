@@ -24,7 +24,7 @@ Documentation is available in `file_system_manager.h`.
 Initial work has been done on directory-related features, but they are not yet fully functional:
 
 - `mkdir` (create a directory)  
-- `chdir` (change directory) – **WIP**, currently not working  
+- `chdir` (change directory) 
 - `readir` (list files in a directory)  
 
 For some of these functions, you need to declare it in your apps because they are provided by dirent.h and not by stdlib

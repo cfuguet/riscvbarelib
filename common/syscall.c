@@ -35,6 +35,7 @@
 
 extern lfs_t lfs;
 
+
 void (*_putchar)(char c)         = NULL;
 int  (*_getchar)()               = NULL;
 void (*_tohost_exit)(int status) = NULL;
@@ -54,7 +55,22 @@ void *_sbrk(int incr)
 
 int _close(int file)
 {
-    return remove_file(file);
+    return close_file(file);
+}
+
+int readir(char *name, char ** result)
+{
+    return file_system_readir(name, result);
+}
+
+int mkdir(const char *name, unsigned int mode)
+{
+    return file_system_mkdir(name, mode);
+}
+
+int chdir(const char *name)
+{
+    return file_system_chdir(name);
 }
 
 int _stat(char * name, struct stat *st){
@@ -75,6 +91,7 @@ int _stat(char * name, struct stat *st){
 
 int _fstat(int file, struct stat *st)
 {
+    return -1;
     my_files_ptr file_ptr = search_file(file);
     if (!file_ptr){
         return -1;

@@ -22,15 +22,34 @@
 
 #include "common/lfs.h"
 
+#include <stdbool.h>
+
 extern lfs_t lfs;
-typedef struct my_files {
-    struct my_files * next;
-    char * name;
+
+typedef struct my_dir my_dir_t;
+typedef my_dir_t* my_dir_ptr;
+
+typedef struct my_files my_files_t;
+typedef my_files_t* my_files_ptr;
+
+struct my_dir {
+    my_dir_ptr child_dir;
+    my_dir_ptr next;
+    my_files_ptr child_files;
+    lfs_dir_t* dir;
+    char* name;
+    my_dir_ptr prev_directory;
+};
+
+struct my_files {
+    my_files_ptr next;
+    char* name;
     lfs_file_t file;
     int fd;
-} my_files_t;
+    bool is_open;
+    my_dir_ptr directory;
+}; 
 
-typedef my_files_t * my_files_ptr;
 
 // Configuration of the virtual peripheric
 #define BLOCK_SIZE     512   // Taille d'un bloc
@@ -44,6 +63,7 @@ typedef my_files_t * my_files_ptr;
  * @brief Must need to call this function at the beginning to create the file system
  */
 void init_file_structure();
+
 
 /**
  * @brief Functions we need to provide for littlefs 
@@ -71,6 +91,34 @@ int ramfs_sync(const struct lfs_config *cfg);
 my_files_ptr search_file(int fd);
 
 /**
+ * @brief Put name of all file or directory include in the current directory in result.
+ *        result need to be allocate before, by edge effect result[i] is allocated, user need to free it
+ *
+ * @param name the name of the directory
+ * @param result an array of string
+ * @return error code
+ */
+int file_system_readir(char *name, char ** result);
+
+/**
+ * @brief Create a new directory, by default it will be placed into the current directory
+ *
+ * @param name name for the directory
+ * @param mode We don't use it
+ * @return error code
+ */
+int file_system_mkdir(const char *name, unsigned int mode);
+
+/**
+ * @brief Change the current directory
+ *
+ * @param path An absolute path or a relative to the current directory
+ * @return error code
+ */
+int file_system_chdir( const char* path);
+
+
+/**
  * @brief get structure file for lfs  
  *
  * @param fd file descriptor 
@@ -93,6 +141,6 @@ int add_file(char * name, enum lfs_open_flags true_flag );
  * @param fd file descriptor
  * @return file_descriptor
  */
-int remove_file(int fd);
+int close_file(int fd);
 
 #endif //__FILE_SYSTEM_MANAGER__
