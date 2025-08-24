@@ -79,7 +79,10 @@ ifdef BSP_NCPUS
   BSP_CFLAGS += -DBSP_CONFIG_NCPUS=$(BSP_NCPUS)
 endif
 ifdef M5
-  BSP_CFLAGS += -DM5
+  BSP_CFLAGS += -DM5=1
+endif
+ifdef QEMU
+  BSP_CFLAGS += -DQEMU=1
 endif
 #  }}}
 
