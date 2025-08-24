@@ -26,51 +26,51 @@
 
 static inline void iowriteb(uintptr_t addr, uint8_t val)
 {
-	*((volatile uint8_t*)addr) = val;
-	cpu_dfence();
+    *((volatile uint8_t*)addr) = val;
+    cpu_dfence();
 }
 
 static inline void iowriteh(uintptr_t addr, uint16_t val)
 {
-	*((volatile uint16_t*)addr) = val;
-	cpu_dfence();
+    *((volatile uint16_t*)addr) = val;
+    cpu_dfence();
 }
 
 static inline void iowritew(uintptr_t addr, uint32_t val)
 {
-	*((volatile uint32_t*)addr) = val;
-	cpu_dfence();
+    *((volatile uint32_t*)addr) = val;
+    cpu_dfence();
 }
 
 static inline void iowritel(uintptr_t addr, uint64_t val)
 {
-	*((volatile uint64_t*)addr) = val;
-	cpu_dfence();
+    *((volatile uint64_t*)addr) = val;
+    cpu_dfence();
 }
 
 static inline uint8_t ioreadb(uintptr_t addr)
 {
-	return *((volatile uint8_t*)addr);
+    return *((volatile uint8_t*)addr);
 }
 
 static inline uint16_t ioreadh(uintptr_t addr)
 {
-	return *((volatile uint16_t*)addr);
+    return *((volatile uint16_t*)addr);
 }
 
 static inline uint32_t ioreadw(uintptr_t addr)
 {
-	return *((volatile uint32_t*)addr);
+    return *((volatile uint32_t*)addr);
 }
 
 static inline uint64_t ioreadl(uintptr_t addr)
 {
-	return *((volatile uint64_t*)addr);
+    return *((volatile uint64_t*)addr);
 }
 
 static inline double ioreadd(uintptr_t addr)
 {
-	return *((volatile double*)addr);
+    return *((volatile double*)addr);
 }
 
 #define writeb iowriteb
