@@ -43,7 +43,8 @@ MEM_WORD_SIZE = 64
 CFLAGS += -ffreestanding \
           -ffunction-sections \
           -fdata-sections \
-          $(BSP_CFLAGS)
+          $(BSP_CFLAGS) \
+          $(EXTRA_CFLAGS)
 
 CXXFLAGS = $(CFLAGS) -std=c++11
 
