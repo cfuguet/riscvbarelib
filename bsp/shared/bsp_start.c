@@ -136,7 +136,8 @@ static void bsp_primary_start()
     cpu_set_dmiss(0);
 
     //  Call the main function
-    int status = main();
+    char *argv[1] = {"./a.out"};
+    int status = main(1, argv);
 
     //  End of main callback
     cb_end_of_main();
