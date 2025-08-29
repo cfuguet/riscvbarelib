@@ -76,6 +76,7 @@ int thread_create(thread_t *t, cpu_entry_func_t func, void *args)
     t->ret    = NULL;
 
     //  Declare the target thread as running
+    cpu_dfence();
     cpu_set_state(cpu->sid, CPU_RUNNING);
     return 0;
 }
@@ -109,7 +110,7 @@ int thread_destroy(thread_t *t)
 int thread_join(thread_t *t)
 {
     //  Wait for the target core to be IDLE (or ERROR)
-    for (int timeout = 0; timeout < 10000; timeout++) {
+    for (int timeout = 0; timeout < (1UL << 30); timeout++) {
         enum cpu_state_e state = cpu_get_state(t->desc->sid);
         if (state == CPU_IDLE)  return  0;
         if (state == CPU_ERROR) return -1;
