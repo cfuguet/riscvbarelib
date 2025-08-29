@@ -71,9 +71,10 @@ void set_exc_instr_flt_handler(int core, exc_handler_t handler)
 static uintptr_t __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc)
 {
     irq_handler_t handler;
+    uintptr_t mhartid = cpu_id();
     switch (mcause) {
         case MCAUSE_M_SOFTWARE_INTERRUPT:
-            handler = __per_core_irq_ipi_handler[cpu_id()];
+            handler = __per_core_irq_ipi_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc);
             }
@@ -81,7 +82,7 @@ static uintptr_t __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
             exit(EXIT_FAILURE);
 
         case MCAUSE_M_TIMER_INTERRUPT:
-            handler = __per_core_irq_tim_handler[cpu_id()];
+            handler = __per_core_irq_tim_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc);
             }
@@ -89,7 +90,7 @@ static uintptr_t __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
             exit(EXIT_FAILURE);
 
         case MCAUSE_M_EXTERNAL_INTERRUPT:
-            handler = __per_core_irq_ext_handler[cpu_id()];
+            handler = __per_core_irq_ext_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc);
             }
@@ -105,13 +106,14 @@ static uintptr_t __irq_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
 static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t mepc, uintptr_t mtval)
 {
     exc_handler_t handler;
+    uintptr_t mhartid = cpu_id();
 
     switch (mcause) {
         case MCAUSE_INSTR_ADDR_MISALIGNED:
         case MCAUSE_INSTR_ACCESS_FAULT:
         case MCAUSE_INSTR_PAGE_FAULT:
         case MCAUSE_INSTR_ILLEGAL:
-            handler = __per_core_exc_instr_flt_handler[cpu_id()];
+            handler = __per_core_exc_instr_flt_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc, mtval);
             }
@@ -121,7 +123,7 @@ static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
         case MCAUSE_LOAD_ACCESS_FAULT:
         case MCAUSE_LOAD_ADDR_MISALIGNED:
         case MCAUSE_LOAD_PAGE_FAULT:
-            handler = __per_core_exc_ld_flt_handler[cpu_id()];
+            handler = __per_core_exc_ld_flt_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc, mtval);
             }
@@ -131,7 +133,7 @@ static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
         case MCAUSE_STORE_ACCESS_FAULT:
         case MCAUSE_STORE_ADDR_MISALIGNED:
         case MCAUSE_STORE_PAGE_FAULT:
-            handler = __per_core_exc_st_flt_handler[cpu_id()];
+            handler = __per_core_exc_st_flt_handler[mhartid];
             if (handler) {
                 return handler(mcause, mstatus, mepc, mtval);
             }
@@ -151,8 +153,10 @@ static uintptr_t __exc_handler(uintptr_t mcause, uintptr_t mstatus, uintptr_t me
     printf("\nmcause = 0x" __csr_fmt
             "\nmstatus = 0x" __csr_fmt
             "\nmepc = 0x" __csr_fmt
-            "\nmtval = 0x" __csr_fmt,
-            mcause, mstatus, mepc, mtval);
+            "\nmtval = 0x" __csr_fmt
+            "\nmhartid = 0x" __csr_fmt
+            "\n",
+            mcause, mstatus, mepc, mtval, mhartid);
 
     exit(EXIT_FAILURE);
 }
