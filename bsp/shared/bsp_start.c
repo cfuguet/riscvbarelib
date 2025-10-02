@@ -29,6 +29,9 @@
 #include "common/cpu.h"
 #include "common/cpu_defs.h"
 #include "common/threads.h"
+#ifdef M5
+#include "m5ops.h"
+#endif
 
 extern void __libc_init_array();
 extern void bsp_init();
@@ -134,6 +137,9 @@ static void bsp_primary_start()
     cpu_set_instructions(0);
     cpu_set_imiss(0);
     cpu_set_dmiss(0);
+#ifdef M5
+    m5_reset_stats(0,0);
+#endif
 
     //  Call the main function
     char *argv[1] = {"./a.out"};
