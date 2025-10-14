@@ -39,7 +39,14 @@ The common/ and include/ directories contains the procedures and header files of
 
 You need a working RISC-V cross-toolchain compiled together with the newlib library.
 
-The following repository [crosstool_scripts](https://github.com/cfuguet/crosstool_scripts) provides a Python script to generate a compatible RISC-V cross-toolchain.
+You can use the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) repository to build such a cross-toolchain.
+Follow the instructions in that repository to install the required dependencies.
+Use the following command to build a riscvbarelib-compatible cross-toolchain ($RISCV shall point to the directory where you want to install the cross-toolchain):
+```sh
+./configure --prefix=$RISCV --with-cmodel=medany --enable-multilib --with-languages=c,c++
+```
+
+**Deprecated**: The following repository [crosstool_scripts](https://github.com/cfuguet/crosstool_scripts) provides a Python script to generate a compatible RISC-V cross-toolchain.
 In particular, the script compiles the newlib library with some specific flags to make it compatible with this riscvbarelib library.
 
 ### Procedure
