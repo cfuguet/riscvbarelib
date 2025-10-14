@@ -35,7 +35,7 @@
 
 extern void __libc_init_array();
 extern void bsp_init();
-extern int main();
+extern int main(int, char*[]);
 extern uintptr_t _sbss;
 extern uintptr_t _ebss;
 
