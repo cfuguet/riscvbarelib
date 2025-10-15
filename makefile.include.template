@@ -40,8 +40,7 @@ PRINTF_FLOAT  = 1
 LINKER_SCRIPT = $(BSP)/linkcmds
 MEM_WORD_SIZE = 64
 
-CFLAGS += -ffreestanding \
-          -ffunction-sections \
+CFLAGS += -ffunction-sections \
           -fdata-sections \
           $(BSP_CFLAGS) \
           $(EXTRA_CFLAGS)
