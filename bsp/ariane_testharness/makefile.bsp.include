@@ -26,23 +26,24 @@ OD  = $(RISCV_PREFIX)objdump
 OC  = $(RISCV_PREFIX)objcopy
 AR  = $(RISCV_PREFIX)ar
 
-C_EXT = $(if $(filter $(BSP_COMPRESSED),1),c)
-A_EXT = $(if $(filter $(BSP_ATOMIC),1),a)
+C_EXT      = $(if $(filter $(BSP_COMPRESSED),1),c)
+A_EXT      = $(if $(filter $(BSP_ATOMIC),1),a)
+ZICBOM_EXT = $(if $(filter $(BSP_ZICBOM),1),zicbom)
 
 ifeq ($(XLEN),64)
   ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)fd$(C_EXT)
+    LDARCH = rv$(XLEN)im$(A_EXT)fd$(C_EXT)_$(ZICBOM_EXT)
     ABI = lp64d
   else
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)_$(ZICBOM_EXT)
     ABI = lp64
   endif
 else
   ifeq ($(BSP_FLOAT),1)
-    LDARCH = rv$(XLEN)im$(A_EXT)f$(C_EXT)
+    LDARCH = rv$(XLEN)im$(A_EXT)f$(C_EXT)_$(ZICBOM_EXT)
     ABI = ilp32f
   else
-    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)
+    LDARCH = rv$(XLEN)im$(A_EXT)$(C_EXT)_$(ZICBOM_EXT)
     ABI = ilp32
   endif
 endif
