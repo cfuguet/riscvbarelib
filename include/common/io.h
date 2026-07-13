@@ -48,11 +48,13 @@ static inline void iowritel(uintptr_t addr, uint64_t val)
     cpu_dfence();
 }
 
+#if __riscv_xlen == 128
 static inline void iowritell(uintptr_t addr, uint64_t val)
 {
 	*((volatile __uint128_t*)addr) = val;
 	cpu_dfence();
 }
+#endif
 
 static inline uint8_t ioreadb(uintptr_t addr)
 {
