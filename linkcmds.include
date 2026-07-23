@@ -75,7 +75,7 @@ SECTIONS
         _etext = . ;
     } > RAM_CACHED
 
-    .tohost ALIGN(1000) :
+    .tohost ALIGN(4096) :
     {
         *(.tohost) ;
     } > RAM_CACHED
