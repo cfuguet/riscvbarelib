@@ -26,6 +26,10 @@
  * @file   linkcmds.include
  * @author Cesar Fuguet Tortolero
  */
+PHDRS
+{
+    data_segment PT_LOAD FLAGS(6); /* RW */
+}
 SECTIONS
 {
     .text :
@@ -84,7 +88,7 @@ SECTIONS
         *(.data.cached) ;
         . = ALIGN(8) ;
         _edata_cached = . ;
-    } > RAM_CACHED
+    } > RAM_CACHED :data_segment
 
     .heap ALIGN(64) (NOLOAD) :
     {
