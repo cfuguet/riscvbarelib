@@ -18,10 +18,6 @@
 #  @file   Makefile
 #  @author Cesar Fuguet
 ##
-ifndef BSP
-$(error "Set BSP to the path of the directory of the Board Support Package")
-endif
-
 MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 MKDIR = mkdir -p
 ECHO = echo
@@ -40,8 +36,11 @@ RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 BSP_FLOAT ?= 1
 BSP_COMPRESSED ?= 1
 BSP_ATOMIC ?= 1
+BSP_ZICBOM ?= 0
 BSP_NCPUS ?= 1
+ifdef BSP
 include $(BSP)/makefile.bsp.include
+endif
 
 ## ==================================================================
 #  Include paths
@@ -74,7 +73,9 @@ CFLAGS += -DSTACK_SIZE=$(BSP_STACK_SIZE)
 ## ==================================================================
 #  Include objects definition
 include common/objects.mk
+ifdef BSP
 include $(BSP)/objects.mk
+endif
 
 ## ==================================================================
 #  Target static library
@@ -83,17 +84,50 @@ target = $(O)/librvb.a
 ## ==================================================================
 #  Build rules
 .PHONY: all
+ifdef BSP
 all: $(target) gen-build-mk
+	@echo "[INFO] RISC-V Bare Library (librvb) generated into $(abspath $(O))"
+	@echo "[INFO]   XLEN=$(XLEN)"
+	@echo "[INFO]   BSP_FLOAT=$(BSP_FLOAT)"
+	@echo "[INFO]   BSP_COMPRESSED=$(BSP_COMPRESSED)"
+	@echo "[INFO]   BSP_ATOMIC=$(BSP_ATOMIC)"
+	@echo "[INFO]   BSP_ZICBOM=$(BSP_ZICBOM)"
+	@echo "[INFO]   BSP_NCPUS=$(BSP_NCPUS)"
+else
+all: help
+endif
+
+.PHONY: help
+help:
+	@echo "make BSP=<path> [<options>]"
+	@echo "options:"
+	@echo "  BSP=<path>               Path to the Board Support Package directory (mandatory)"
+	@echo "  [O=<path>]               Output path for output library and binaries"
+	@echo "                           (default: $(O))"
+	@echo "  [XLEN=<xlen_value>]      32/64/128 (default: $(XLEN))"
+	@echo "  [RISCV_PREFIX=<prefix>]  RISC-V cross-compiler prefix"
+	@echo "                           (default: $(RISCV_PREFIX))"
+	@echo "  [BSP_FLOAT=<0|1>]        Support float F and D extensions"
+	@echo "                           (default: $(BSP_FLOAT))"
+	@echo "  [BSP_COMPRESSED=<0|1>]   Support compress C extension"
+	@echo "                           (default: $(BSP_COMPRESSED))"
+	@echo "  [BSP_ATOMIC=<0|1>]       Support atomic A extension"
+	@echo "                           (default: $(BSP_ATOMIC))"
+	@echo "  [BSP_ZICBOM=<0|1>]       Support zicbom extension / cache block management operations"
+	@echo "                           (default: $(BSP_ZICBOM))"
+	@echo "  [BSP_NCPUS=<n>]          Number of RISC-V harts in the platform"
+	@echo "                           (default: $(BSP_NCPUS))"
 
 .PHONY: gen-build-mk
 gen-build-mk:
-	sed -e 's|<<__RVB_HOME__>>|$(RVB_HOME)|g' \
+	@sed -e 's|<<__RVB_HOME__>>|$(RVB_HOME)|g' \
 	    -e 's|<<__XLEN__>>|$(XLEN)|g' \
 	    -e 's|<<__RISCV_PREFIX__>>|$(RISCV_PREFIX)|g' \
 	    -e 's|<<__BSP__>>|$(abspath $(BSP))|g' \
 	    -e 's|<<__BSP_FLOAT__>>|$(BSP_FLOAT)|g' \
 	    -e 's|<<__BSP_COMPRESSED__>>|$(BSP_COMPRESSED)|g' \
 	    -e 's|<<__BSP_ATOMIC__>>|$(BSP_ATOMIC)|g' \
+	    -e 's|<<__BSP_ZICBOM__>>|$(BSP_ZICBOM)|g' \
 	    -e 's|<<__BSP_NCPUS__>>|$(BSP_NCPUS)|g' \
 	    makefile.include.template > $(O)/makefile.include
 	$(CP) linkcmds.include $(O)/
