@@ -37,7 +37,7 @@ SECTIONS
         *(.text .text.*) ;
         *(.rodata .rodata* .srodata .srodata*) ;
         . = ALIGN(8) ;
-    } > RAM_CACHED
+    } > ROM
 
     .preinit_array    :
     {
@@ -69,11 +69,6 @@ SECTIONS
         KEEP (*(SORT(.dtors.*)))
         KEEP (*(.dtors))
         _etext = . ;
-    } > RAM_CACHED
-
-    .tohost ALIGN(1000) :
-    {
-        *(.tohost) ;
     } > RAM_CACHED
 
     .data.cached :
@@ -108,5 +103,10 @@ SECTIONS
         *(COMMON) ;
         . = ALIGN(8) ;
         _ebss = . ;
+    } > RAM_UNCACHED
+
+    .tohost ALIGN(0x1000) :
+    {
+        *(.tohost) ;
     } > RAM_UNCACHED
 }
